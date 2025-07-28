@@ -5,19 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2024-12-19
+## [1.0.1] - 2025-07-27
+
+### Added
+- **Repository links**: Repo links were missing
+- **Documentation updates**: Some README and CHANGELOG information was inaccurate from the 1.0.0 release. Corrected.
+- **Convex root config**: Added config for convex directory if you've installed convex somewhere other than in the root of your project at `convex/`
+- **Configurable import paths**: Added support for custom import path prefixes in schema files
+
+### Configuration Options
+- `convexPath`: Customize what folder to look in for convex schema and functions (default: `"convex"`)
+- `importPath`: Customize the import path prefix for table imports in schema (default: `"@convex"`)
+
+## [1.0.0] - 2025-07-27
 
 ### Added
 - **Initial Release**: First public release of vite-plugin-convex-types
 - **Automatic Type Generation**: Creates TypeScript type exports for all tables in your Convex schema
 - **Function Return Type Inference**: Automatically generates return types for queries and mutations
 - **Populated Document Types**: Creates types for documents with populated relations (e.g., `ArticleWithAuthor`)
-- **Hot Reload Support**: Regenerates types when your schema or functions change during development
+- **Hot Reload Support**: Regenerates types when your convex schema or functions change during development
 - **Singular Naming Convention**: Converts plural table names to singular type names (e.g., `users` → `User`)
 - **Zero Configuration Setup**: Works out of the box with existing Convex projects
 - **Advanced Type Helpers**: Provides generic types like `WithPopulatedField`, `GetDocType`, `GetIdType`
-- **File Watching**: Monitors Convex directory for changes and regenerates types automatically
-- **Warning Comments**: Auto-generated files include clear warnings about manual edits being overridden
 
 ### Features
 - **Schema Detection**: Reads `convex/schema.ts` to detect all tables
@@ -25,8 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Type Export Generation**: Creates comprehensive type exports using Convex's generated `dataModel.d.ts`
 - **Return Type Inference**: Analyzes function code to infer return types based on patterns
 - **Directory Structure Support**: Works with both flat and nested Convex function structures
-- **Error Handling**: Graceful handling of missing files and directories
-- **Console Logging**: Helpful feedback during type generation process
 
 ### Technical Details
 - **Node.js Support**: Requires Node.js >= 18.0.0
@@ -45,16 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Configuration Options
 - `outputPath`: Customize where generated types are written (default: `'src/types/_generated/convex.ts'`)
 
-### Breaking Changes
-- None (initial release)
-
-### Migration Guide
-- No migration required (initial release)
-
 ### Known Issues
 - Function return type inference is based on pattern matching and may not catch all cases
 - Requires Convex to be running (`npx convex dev`) for initial type generation
-- Generated files must not be manually edited as they will be overridden
+- Generated files must not be manually edited as they will be overridden (you could always extend them yourself in another file in your app)
 
 ### Documentation
 - Complete README with usage examples and configuration options

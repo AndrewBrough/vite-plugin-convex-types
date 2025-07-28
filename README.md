@@ -1,6 +1,6 @@
 # vite-plugin-convex-types
 
-A Vite plugin that automatically generates TypeScript types for Convex tables and function return types, so you can import them directly without any manual setup.
+A Vite plugin that automatically generates more usable TypeScript types for Convex tables and function return types. Don't like accessing your types like Doc<"users">? Now you can just do `import { User, UserWithRelation } from "src/types/_generated/convex";`.
 
 ## Features
 
@@ -28,7 +28,11 @@ import { convexTypesPlugin } from 'vite-plugin-convex-types';
 
 export default defineConfig({
   plugins: [
-    convexTypesPlugin(),
+    convexTypesPlugin({
+      outputPath: "src/types/_generated/convex.ts",
+      convexPath: "convex",
+      importPath: "./convex"
+    }),
     // ... other plugins
   ],
 });
@@ -70,7 +74,8 @@ const ArticleCard = ({ article, onArticleClick }: {
 ```typescript
 convexTypesPlugin({
   outputPath: 'src/types/_generated/convex.ts', // Where to output types
-  watch: true                                   // Watch for changes (default: true)
+  convexPath: 'convex',                         // Path to convex directory
+  importPath: './convex'                         // Import path prefix for table imports
 })
 ```
 
@@ -79,7 +84,8 @@ convexTypesPlugin({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `outputPath` | `string` | `'src/types/_generated/convex.ts'` | Path where generated types will be written |
-| `watch` | `boolean` | `true` | Whether to watch for changes and regenerate types |
+| `convexPath` | `string` | `'convex'` | Path to the convex directory |
+| `importPath` | `string` | `'./convex'` | Import path prefix for table imports in schema |
 
 ## Generated Types
 
@@ -125,12 +131,13 @@ type ArticleWithCustomAuthor = WithPopulatedField<Article, 'author', User | null
 
 ## How It Works
 
-1. **Schema Detection**: The plugin reads your `convex/schema.ts` file to detect all tables
-2. **Function Analysis**: Scans your Convex functions to detect queries and mutations
-3. **Type Generation**: Creates type exports using the generated `convex/_generated/dataModel.d.ts`
-4. **Return Type Inference**: Analyzes function code to infer return types
-5. **Hot Reload**: Watches for changes and regenerates types automatically
-6. **Output**: Writes types to the specified output path
+1. **Schema Detection**: The plugin reads your `convex/schema.ts` file to detect all tables by parsing import statements and table definitions
+2. **Import Path Detection**: Uses the configured import path (default: `./convex`) to find table imports in your schema
+3. **Function Analysis**: Scans your Convex functions to detect queries and mutations
+4. **Type Generation**: Creates type exports using the generated `convex/_generated/dataModel.d.ts`
+5. **Return Type Inference**: Analyzes function code to infer return types
+6. **Hot Reload**: Watches for changes and regenerates types automatically
+7. **Output**: Writes types to the specified output path
 
 ## Requirements
 
@@ -167,19 +174,28 @@ your-project/
 - **Consistency**: Standardized naming across your codebase
 - **Populated Relations**: Proper typing for documents with populated foreign keys
 
+## Advanced Configuration
+
+### Custom Import Paths
+
+If your Convex schema uses a different import path prefix than the default `./convex`, you can configure it (you'd have to have set this up in your own tsconfig.json 'paths')
+
+```typescript
+// vite.config.ts
+convexTypesPlugin({
+  importPath: "@convex" // For imports like: import { users } from "@convex/users"
+})
+```
+
+This is useful if you have custom path aliases or different import patterns in your schema files.
+
 ## Troubleshooting
 
-### Types Not Generated
+### Type Not Generating properly
 
-1. Make sure Convex is running: `npm run convex:dev`
-2. Check that `convex/_generated/dataModel.d.ts` exists
-3. Verify your schema file is properly structured
-
-### Type Errors
-
-1. Run `npm run convex:codegen` to regenerate Convex types
-2. Restart your dev server: `npm run dev`
-3. Check that table names in your schema match the generated types
+1. Make sure Convex is running: `npm run convex`
+2. Check that `convex/_generated/dataModel.d.ts` exists before running your app eg. `npm run dev`
+3. Verify you've configured the plygin is properly structured
 
 ### Function Return Types Not Detected
 
@@ -193,7 +209,7 @@ your-project/
 
 ```typescript
 // Before (manual approach)
-import type { Doc, Id } from "@convex/_generated/dataModel";
+import type { Doc, Id } from "./convex/_generated/dataModel";
 type User = Doc<"users">;
 type UserId = Id<"users">;
 // No return types for functions
