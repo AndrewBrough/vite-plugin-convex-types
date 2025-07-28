@@ -2,6 +2,10 @@
 
 A Vite plugin that automatically generates more usable TypeScript types for Convex tables and function return types. Don't like accessing your types like Doc<"users">? Now you can just do `import { User, UserWithRelation } from "src/types/_generated/convex";`.
 
+## Releases + Changelogs
+
+https://github.com/AndrewBrough/vite-plugin-convex-types/releases
+
 ## Features
 
 - ✅ **Automatic Type Generation**: Creates type exports for all tables in your Convex schema
