@@ -9,6 +9,8 @@ import type { Plugin } from 'vite';
  */
 interface ConvexTypesPluginOptions {
   outputPath?: string;
+  convexPath?: string;
+  importPath?: string;
 }
 
 interface FunctionInfo {
@@ -25,13 +27,15 @@ interface FunctionInfo {
  */
 export function convexTypesPlugin(options: ConvexTypesPluginOptions = {}): Plugin {
   const {
-    outputPath = 'src/types/_generated/convex.ts',
+    outputPath = './src/types/convex.ts',
+    convexPath = 'convex',
+    importPath = 'convex',
   } = options;
 
   let generatedContent = '';
 
   function extractTableNames(): string[] {
-    const convexDir = resolve(process.cwd(), 'convex');
+    const convexDir = resolve(process.cwd(), convexPath);
     const tableNames: string[] = [];
 
     // Read the schema.ts file to get table names
@@ -40,7 +44,8 @@ export function convexTypesPlugin(options: ConvexTypesPluginOptions = {}): Plugi
       const schemaContent = readFileSync(schemaPath, 'utf-8');
 
       // Look for table imports and exports
-      const importMatches = schemaContent.matchAll(/import\s+(\w+)\s+from\s+["']@convex\/(\w+)\/\w+["']/g);
+      const importRegex = new RegExp(`import\\s+(\\w+)\\s+from\\s+["']${importPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/(\\w+)/\\w+["']`, 'g');
+      const importMatches = schemaContent.matchAll(importRegex);
       for (const match of importMatches) {
         const tableName = match[2]; // Extract from path like @convex/users/users
         if (tableName && !tableNames.includes(tableName)) {
