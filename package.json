@@ -1,14 +1,17 @@
 {
   "name": "vite-plugin-convex-types",
   "version": "1.0.4-alpha.2",
+  "type": "module",
   "description": "A Vite plugin that automatically generates TypeScript types for Convex tables and function return types",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
     }
   },
   "files": [

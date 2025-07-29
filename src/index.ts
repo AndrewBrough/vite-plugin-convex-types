@@ -7,13 +7,13 @@ import type { Plugin } from 'vite';
  * 
  * @param outputPath - The path to the output file.
  */
-interface ConvexTypesPluginOptions {
+export interface ConvexTypesPluginOptions {
   outputPath?: string;
   convexPath?: string;
   importPath?: string;
 }
 
-interface FunctionInfo {
+export interface FunctionInfo {
   name: string;
   path: string;
   type: 'query' | 'mutation' | 'action';
