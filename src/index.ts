@@ -657,8 +657,6 @@ export type GetDocType<T extends TableNames> = DocTypes[T];
 
 // Helper type to get the ID type for any table
 export type GetIdType<T extends TableNames> = IdTypes[T];
-
-// Auto-generated on ${new Date().toISOString()}
 `;
 
       generatedContent = imports +
