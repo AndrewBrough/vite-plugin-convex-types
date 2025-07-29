@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-07-29
+
+### Added
+- **Pre-configured React Hooks**: Auto-generated hooks that eliminate the need for `.default` syntax when using Convex queries and mutations
+- **Enhanced Type Generation**: Improved function argument types and return type inference
+- **Better Import Management**: Cleaner imports from `@src/types/convex` with all necessary types and hooks
+- **Organization Support**: Added support for organization-related types and queries
+- **Improved Type Safety**: Better TypeScript intellisense for function arguments, return types, and error handling
+
+### Features
+- **Auto-generated Hooks**: Functions like `getAllArticles.ts` automatically generate `useGetAllArticlesQuery` hooks
+- **Consistent API**: All hooks follow the same pattern for queries and mutations
+- **Zero Configuration**: Hooks are automatically updated when new Convex functions are added
+- **Type-Safe Arguments**: Proper TypeScript support for function arguments and return types
+
+### Generated Hooks Include
+- Query hooks: `useGetAllArticlesQuery`, `useGetAllUsersQuery`, `useGetCurrentUserQuery`, `useGetOrganizationsForUserQuery`
+- Mutation hooks: `useCreateArticleMutation`, `useUpdateCurrentUserMutation`
+- All hooks handle the `.default` syntax automatically
+- Proper TypeScript types for arguments and return values
+
+### Usage Examples
+```tsx
+// Before (Old Way)
+import { api } from "@convex/_generated/api";
+import { useQuery, useMutation } from "convex/react";
+const articles = useQuery(api.articles.getAllArticles.default, { sort: "desc" });
+const createArticle = useMutation(api.articles.createArticle.default);
+
+// After (New Way)
+import { useGetAllArticlesQuery, useCreateArticleMutation } from "@src/types/convex";
+const articles = useGetAllArticlesQuery({ sort: "desc" });
+const createArticle = useCreateArticleMutation();
+```
+
+### Breaking Changes
+- None - this is a feature enhancement that maintains backward compatibility
+
+### Documentation
+- Added comprehensive documentation for the new hooks system
+- Updated usage examples to demonstrate the new simplified API
+- Added troubleshooting guide for common hook usage patterns
 ## [1.0.1] - 2025-07-27
 
 ### Added

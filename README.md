@@ -1,6 +1,6 @@
 # vite-plugin-convex-types
 
-A Vite plugin that automatically generates more usable TypeScript types for Convex tables and function return types. Don't like accessing your types like Doc<"users">? Now you can just do `import { User, UserWithRelation } from "src/types/_generated/convex";`.
+A Vite plugin that automatically generates more usable TypeScript types for Convex tables and function return types, plus pre-configured React hooks. Don't like accessing your types like Doc<"users"> or dealing with `.default` syntax? Now you can just do `import { User, useGetAllUsersQuery } from "src/types/_generated/convex";`.
 
 ## Releases + Changelogs
 
@@ -9,6 +9,7 @@ https://github.com/AndrewBrough/vite-plugin-convex-types/releases
 ## Features
 
 - ✅ **Automatic Type Generation**: Creates type exports for all tables in your Convex schema
+- ✅ **Pre-configured React Hooks**: Auto-generated hooks that eliminate the need for `.default` syntax
 - ✅ **Function Return Types**: Generates return types for queries and mutations
 - ✅ **Populated Document Types**: Creates types for documents with populated relations
 - ✅ **Hot Reload**: Regenerates types when your schema or functions change
@@ -42,7 +43,7 @@ export default defineConfig({
 });
 ```
 
-### 2. Import the generated types
+### 2. Import the generated types and hooks
 
 ```typescript
 import type { 
@@ -52,6 +53,11 @@ import type {
   ArticleId,
   ArticleWithAuthor,
   GetAllArticlesReturn 
+} from '../types/_generated/convex';
+import { 
+  useGetAllArticlesQuery, 
+  useCreateArticleMutation,
+  useGetAllUsersQuery 
 } from '../types/_generated/convex';
 
 // Use them in your components
@@ -68,6 +74,14 @@ const ArticleCard = ({ article, onArticleClick }: {
       )}
     </div>
   );
+};
+
+// Use the pre-configured hooks (no more .default syntax!)
+const ArticleList = () => {
+  const articles = useGetAllArticlesQuery({ sort: "desc" });
+  const createArticle = useCreateArticleMutation();
+  
+  // Your component logic here...
 };
 ```
 
@@ -112,6 +126,13 @@ The plugin automatically generates these types for each table:
 - `GetCurrentUserReturn` - Return type for getCurrentUser query
 - `CreateArticleReturn` - Return type for createArticle mutation
 
+### Pre-configured React Hooks
+- `useGetAllArticlesQuery(args?)` - Hook for getAllArticles query
+- `useGetAllUsersQuery()` - Hook for getAllUsers query
+- `useGetCurrentUserQuery()` - Hook for getCurrentUser query
+- `useCreateArticleMutation()` - Hook for createArticle mutation
+- `useUpdateCurrentUserMutation()` - Hook for updateCurrentUser mutation
+
 ### Advanced Types
 ```typescript
 import type { 
@@ -139,9 +160,10 @@ type ArticleWithCustomAuthor = WithPopulatedField<Article, 'author', User | null
 2. **Import Path Detection**: Uses the configured import path (default: `./convex`) to find table imports in your schema
 3. **Function Analysis**: Scans your Convex functions to detect queries and mutations
 4. **Type Generation**: Creates type exports using the generated `convex/_generated/dataModel.d.ts`
-5. **Return Type Inference**: Analyzes function code to infer return types
-6. **Hot Reload**: Watches for changes and regenerates types automatically
-7. **Output**: Writes types to the specified output path
+5. **Hook Generation**: Auto-generates pre-configured React hooks for all queries and mutations
+6. **Return Type Inference**: Analyzes function code to infer return types
+7. **Hot Reload**: Watches for changes and regenerates types and hooks automatically
+8. **Output**: Writes types and hooks to the specified output path
 
 ## Requirements
 
@@ -172,11 +194,13 @@ your-project/
 
 ## Benefits
 
-- **No Manual Maintenance**: Types are always in sync with your schema and functions
+- **No Manual Maintenance**: Types and hooks are always in sync with your schema and functions
 - **Type Safety**: Full TypeScript support with proper field types and return types
-- **Developer Experience**: IntelliSense and autocomplete for all tables and functions
+- **Developer Experience**: IntelliSense and autocomplete for all tables, functions, and hooks
 - **Consistency**: Standardized naming across your codebase
 - **Populated Relations**: Proper typing for documents with populated foreign keys
+- **Simplified API**: No more `.default` syntax - use pre-configured hooks instead
+- **Auto-regeneration**: Hooks are automatically updated when you add new Convex functions
 
 ## Advanced Configuration
 
@@ -214,9 +238,14 @@ This is useful if you have custom path aliases or different import patterns in y
 ```typescript
 // Before (manual approach)
 import type { Doc, Id } from "./convex/_generated/dataModel";
+import { api } from "@convex/_generated/api";
+import { useQuery, useMutation } from "convex/react";
+
 type User = Doc<"users">;
 type UserId = Id<"users">;
 // No return types for functions
+const articles = useQuery(api.articles.getAllArticles.default, { sort: "desc" });
+const createArticle = useMutation(api.articles.createArticle.default);
 
 // After (with plugin)
 import type { 
@@ -225,14 +254,21 @@ import type {
   GetCurrentUserReturn,
   ArticleWithAuthor 
 } from "../types/_generated/convex";
-// Ready to use with full type safety!
+import { 
+  useGetAllArticlesQuery, 
+  useCreateArticleMutation 
+} from "../types/_generated/convex";
+
+// Ready to use with full type safety and simplified hooks!
+const articles = useGetAllArticlesQuery({ sort: "desc" });
+const createArticle = useCreateArticleMutation();
 ```
 
 ### With Populated Relations
 
 ```typescript
 // Your Convex query returns articles with populated authors
-const articles = useQuery(api.articles.getAllArticles.default);
+const articles = useGetAllArticlesQuery();
 
 // Use the generated type for type safety
 const ArticleList = ({ articles }: { articles: GetAllArticlesReturn }) => {
@@ -246,6 +282,34 @@ const ArticleList = ({ articles }: { articles: GetAllArticlesReturn }) => {
         </div>
       ))}
     </div>
+  );
+};
+```
+
+### Using Pre-configured Hooks
+
+```typescript
+// All your Convex functions automatically get pre-configured hooks
+const MyComponent = () => {
+  // Queries
+  const articles = useGetAllArticlesQuery({ sort: "desc" });
+  const users = useGetAllUsersQuery();
+  const currentUser = useGetCurrentUserQuery();
+  
+  // Mutations
+  const createArticle = useCreateArticleMutation();
+  const updateUser = useUpdateCurrentUserMutation();
+  
+  // All hooks are fully typed with proper arguments and return types
+  const handleCreateArticle = () => {
+    createArticle({ 
+      title_md: "New Article", 
+      body_md: "Article content" 
+    });
+  };
+  
+  return (
+    // Your component JSX
   );
 };
 ```
