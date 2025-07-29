@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, extname, join, resolve } from 'path';
 import type { Plugin } from 'vite';
+import { generateQueryHooks } from './queryGeneration';
 
 /**
  * This plugin is used to generate types for the Convex database.
@@ -11,6 +12,8 @@ interface ConvexTypesPluginOptions {
   outputPath?: string;
   convexPath?: string;
   importPath?: string;
+  generateQueries?: boolean;
+  queriesPath?: string;
 }
 
 interface FunctionInfo {
@@ -30,6 +33,8 @@ export function convexTypesPlugin(options: ConvexTypesPluginOptions = {}): Plugi
     outputPath = './src/types/convex.ts',
     convexPath = 'convex',
     importPath = 'convex',
+    generateQueries = true,
+    queriesPath = './src/types/convexQueries.ts',
   } = options;
 
   let generatedContent = '';
@@ -282,6 +287,16 @@ export type GetIdType<T extends TableNames> = IdTypes[T];
 
       writeFileSync(resolve(process.cwd(), outputPath), generatedContent);
       console.log(`✅ Generated Convex types at ${outputPath}`);
+
+      // Generate query hooks if enabled
+      if (generateQueries) {
+        await generateQueryHooks({
+          outputPath: queriesPath,
+          convexPath,
+          importPath,
+          typesPath: outputPath,
+        });
+      }
     } catch (error) {
       console.error('Error generating Convex types:', error);
     }
